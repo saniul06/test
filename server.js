@@ -1,22 +1,26 @@
-import express, { json, urlencoded } from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
-import connectDatabase from './config/database.js';
+import app from './app.js'
 import dotenv from 'dotenv'
-const app = express()
 
-app.use(cors());
-app.use(morgan('dev'));
-app.use(json())
-app.use(urlencoded({ extended: true }));
-app.use(cookieParser())
+import connectDatabase from './config/database.js'
+
+process.on('uncaughtException', err => {
+    console.log(`the error is: ${err.message}`)
+    console.log(`the error is: ${err.stack}`)
+    process.exit(1)
+
+})
 
 dotenv.config({ path: './config/dev.env' })
 
-connectDatabase();
+connectDatabase()
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server started at port ${process.env.PORT}`)
+const server = app.listen(process.env.PORT, () => {
+    console.log(`server started at port ${process.env.PORT}`)
 })
 
+process.on('unhandledRejection', err => {
+    console.log(`the unhandle error is ${err.message}`)
+    console.log(`the unhandle error is ${err.stack}`)
+    console.log('sutting down server')
+    server.close(() => process.exit(1))
+})
