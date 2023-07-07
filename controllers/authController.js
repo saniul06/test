@@ -4,17 +4,17 @@ import ErrorHandler from '../utils/Errors.js'
 import sendToken from '../utils/jwtToken.js'
 
 export const registerUser = asyncErrorHandler(async (req, res, next) => {
-    const { name, email, password } = req.body
+    const { name, email, password, role } = req.body
 
     if (!name || !email || !password) {
         return next(new ErrorHandler('Please fill the form', 400))
     }
 
-    const user = await User.create({
-        name,
-        email,
-        password,
-    })
+    const data = { name, email, password }
+
+    if (role) data.role = role;
+
+    const user = await User.create(data);
 
     sendToken(user, 201, res)
 })
